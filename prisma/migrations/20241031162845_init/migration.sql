@@ -12,8 +12,8 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Dispute" (
     "id" SERIAL NOT NULL,
-    "username_1" TEXT NOT NULL,
-    "username_2" TEXT NOT NULL,
+    "user_1" INTEGER NOT NULL,
+    "user_2" INTEGER NOT NULL,
     "text_1" TEXT NOT NULL,
     "text_1_confirm" BOOLEAN NOT NULL,
     "text_2" TEXT NOT NULL,

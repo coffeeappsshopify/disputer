@@ -8,7 +8,7 @@ import { DisplayData, type DisplayDataRow } from '@/components/DisplayData/Displ
 
 function getUserRows(user: User): DisplayDataRow[] {
   return [
-    { title: 'id', value: user.id.toString() },
+    { title: 'id', value: user.id },
     { title: 'username', value: user.username },
     { title: 'photo_url', value: user.photoUrl },
     { title: 'last_name', value: user.lastName },
@@ -68,7 +68,7 @@ export default function InitDataPage() {
     const { id, title, type, username, photoUrl } = initData.chat;
 
     return [
-      { title: 'id', value: id.toString() },
+      { title: 'id', value: id },
       { title: 'title', value: title },
       { title: 'type', value: type },
       { title: 'username', value: username },

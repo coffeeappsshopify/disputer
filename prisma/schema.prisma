@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id          String       @id
+  id          BigInt       @id
   username    String
   firstName   String
   lastName    String
@@ -23,14 +23,15 @@ model User {
 
 model Dispute {
   id              Int @id @default(autoincrement())
-  username_1      String
-  username_2      String
+  user_1          BigInt
+  user_2          BigInt
   text_1          String
   text_1_confirm  Boolean
   text_2          String
   text_2_confirm  Boolean
   decision        String
   who_is_right    String
+  summary         String
 }
 
 model Transactions {

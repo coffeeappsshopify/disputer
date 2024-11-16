@@ -7,7 +7,6 @@ export default function Home() {
   return (
     <div className="grid gap-4">
       <Disputes />
-
     </div>
   );
 }

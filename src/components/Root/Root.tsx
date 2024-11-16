@@ -22,6 +22,7 @@ import './styles.css';
 import {on, postEvent} from "@telegram-apps/bridge";
 import {usePathname, useRouter} from "next/navigation";
 import {AppRoot} from "@telegram-apps/telegram-ui";
+import UserCard from "@/components/UserCard";
 
 function App(props: PropsWithChildren) {
   const miniApp = useMiniApp();
@@ -103,9 +104,9 @@ async function createOrUpdateUser(user: TgUser) {
     },
     body: JSON.stringify({
       ...user,
-      id: user.id.toString()
+      id: user.id
     })
-  })
+  });
 
   return await dbResponse.json();
 }
@@ -123,24 +124,7 @@ function LayoutFetch(props: PropsWithChildren) {
 
   return (
     <>
-      {user && pathname === '/' &&
-        <div className={'grid grid-cols-[auto_minmax(10px,1fr)] text-wrap py-5 px-4 bg-gray-50 dark:bg-gray-900 rounded-[14px] gap-x-4 items-center mb-4'}>
-          { user.photoUrl ?
-            <img src={user.photoUrl} alt=""/> :
-            <div className="w-[60px] h-[60px] rounded-full bg-blue-500 flex justify-center items-center text-h1 text-white dark:text-gray-900">
-              {user.firstName && user.firstName[0]}{user.lastName && user.lastName[0]}
-            </div>
-          }
-          <div>
-            <h1 className="text-h2 truncate mb-1 text-gray-900 dark:text-gray-200">
-              {user.firstName} {user.lastName}
-            </h1>
-            <div className="text-gray-600 dark:text-gray-400">
-              {user.username ? '@' + user.username : 'id: ' + user.id}
-            </div>
-          </div>
-        </div>
-      }
+      {user && pathname === '/' && <UserCard user={user}/>}
 
       {props.children}
     </>

@@ -2,6 +2,7 @@ import WebSocket, { WebSocketServer } from 'ws';
 import pg from 'pg';
 import dotenv from 'dotenv';
 import {PrismaClient} from "@prisma/client";
+import {jsonStringify} from "./utils.js";
 
 dotenv.config();
 const { Pool } = pg;
@@ -14,29 +15,44 @@ const pool = new Pool({
 const wss = new WebSocketServer({ port: 8080 });
 
 wss.on('connection', (ws) => {
-    console.log('Client connected');
-
-    async function fetchAndSendDisputes() {
-        const data = await prisma.dispute.findMany();
+    async function fetchAndSendDisputes(userId) {
+        console.log(userId)
+        const data = await prisma.dispute.findMany({
+            where: {
+                OR: [
+                    {
+                        user_1: userId,
+                    },
+                    {
+                        user_2: userId,
+                    },
+                ]
+            }
+        });
         return data;
     }
-    wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-            fetchAndSendDisputes().then(data => {
-                client.send(JSON.stringify({
-                    status: 'insert',
-                    result: data
-                }))
-            });
+
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
+
+        if (data.type === 'register' && data.clientId) {
+            ws.clientId = parseInt(data.clientId);
+            if (ws.readyState === WebSocket.OPEN ) {
+                fetchAndSendDisputes(data.clientId).then(data => {
+                    ws.send(jsonStringify({
+                        status: 'insert-many',
+                        result: data
+                    }))
+                });
+            }
         }
-    });
+    })
 
     ws.on('close', () => {
         console.log('Client disconnected');
     });
 });
 
-// Listen for PostgreSQL notifications
 pool.connect((err, client) => {
     if (err) throw err;
 
@@ -44,13 +60,15 @@ pool.connect((err, client) => {
         const payload = JSON.parse(msg.payload);
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({
-                    status: payload.event,
-                    result: payload.data
-                }))
+                if(client.clientId === payload.data.user_1 || client.clientId === payload.data.user_2) {
+                    client.send(JSON.stringify({
+                        status: payload.event,
+                        result: payload.data
+                    }));
+                }
             }
         });
     });
 
-    client.query('LISTEN new_message'); // Ensure you have this notification set up
+    client.query('LISTEN new_message');
 });
